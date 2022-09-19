@@ -14,6 +14,6 @@ zig build run
 
 ### Plans
 
-[x] prettifier
-[ ] validator
-[ ] simple processing
+- [x] prettifier
+- [ ] validator
+- [ ] simple processing
