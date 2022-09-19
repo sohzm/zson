@@ -11,3 +11,9 @@ zig build run
 ```
 ./zig-out/bin/zson <name-of-json-file>
 ```
+
+### Plans
+
+[x] prettifier
+[ ] validator
+[ ] simple processing
