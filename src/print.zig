@@ -8,10 +8,12 @@ const indentLen: u32 = 4;
 
 pub fn printJSON(tokenArr: []lex.Token) !void {
     var indents: u32 = 0;
+    var before: bool = false;
     for (tokenArr) |element| {
         try stdout.print("{s}", .{fmt.reset});
         if (element.token == lex.token.braceO or element.token == lex.token.bracketO) {
             indents += 1;
+            before = true;
             try stdout.print("{s}{s}\n", .{fmt.bold, element.value});
             try printIndent(indents);
             continue;
@@ -24,7 +26,11 @@ pub fn printJSON(tokenArr: []lex.Token) !void {
             continue;
         }
         if (element.token == lex.token.string) {
-            try stdout.print("{s}{s}", .{fmt.red, element.value});
+            if (before) {
+                try stdout.print("{s}{s}", .{fmt.blue, element.value});
+            } else {
+                try stdout.print("{s}{s}", .{fmt.red, element.value});
+            }
             continue;
         }
         if (element.token == lex.token.num) {
@@ -40,10 +46,12 @@ pub fn printJSON(tokenArr: []lex.Token) !void {
             continue;
         }
         if (element.token == lex.token.eq) {
+            before = false;
             try stdout.print("{s}: ", .{fmt.bold});
             continue;
         }
         if (element.token == lex.token.separator) {
+            before = true;
             try stdout.print("{s},\n", .{fmt.bold});
             try printIndent(indents);
             continue;
