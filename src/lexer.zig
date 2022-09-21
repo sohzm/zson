@@ -1,5 +1,4 @@
 const std = @import("std");
-const mem = std.mem;
 const files = @import("files.zig");
 
 const log = std.log;
@@ -21,9 +20,16 @@ pub fn lexer(text: []u8, alloc: std.mem.Allocator) ![]Token {
     var i: usize = 0;
     var last: usize = 0;
     var size: usize = text.len;
+    var lineNumber: usize = 1;
+    var lastNextLine: usize = 0;
 
     while (i < size) {
         if (isWhitespace(text[i])) {
+            var flag = eql(u8, text[i .. i + 1], "\n");
+            if (flag) {
+                lineNumber += 1;
+                lastNextLine = i;
+            }
             i += 1;
         } else if (isCurly(text[i])) {
             if (text[i] == '{') {
@@ -60,8 +66,8 @@ pub fn lexer(text: []u8, alloc: std.mem.Allocator) ![]Token {
             i += 1;
             try list.append(.{ .token = token.string, .value = text[last..i] });
         } else if (isBoolean(text[i])) {
-            var flag1 = mem.eql(u8, text[i .. i + 4], "true");
-            var flag2 = mem.eql(u8, text[i .. i + 5], "false");
+            var flag1 = eql(u8, text[i .. i + 4], "true");
+            var flag2 = eql(u8, text[i .. i + 5], "false");
             if (flag1) {
                 try list.append(.{ .token = token.boolValue, .value = text[i .. i + 4] });
                 i += 4;
@@ -69,20 +75,21 @@ pub fn lexer(text: []u8, alloc: std.mem.Allocator) ![]Token {
                 try list.append(.{ .token = token.boolValue, .value = text[i .. i + 5] });
                 i += 5;
             } else {
-                log.err("Illegal syntax: {c}", .{text[i]});
+                log.err("Illegal syntax: '{c}' at line: {}, column: {}", .{ text[i], lineNumber, (i - lastNextLine) });
+                std.os.exit(1);
                 std.os.exit(1);
             }
         } else if (isEmpty(text[i])) {
-            var flag = mem.eql(u8, text[i .. i + 4], "null");
+            var flag = eql(u8, text[i .. i + 4], "null");
             if (flag) {
                 try list.append(.{ .token = token.nullValue, .value = text[i .. i + 4] });
                 i += 4;
             } else {
-                log.err("Illegal syntax: {c}", .{text[i]});
+                log.err("Illegal syntax: '{c}' at line: {}, column: {}", .{ text[i], lineNumber, (i - lastNextLine) });
                 std.os.exit(1);
             }
         } else {
-            log.err("Illegal syntax: {c}", .{text[i]});
+            log.err("Illegal syntax: '{c}' at line: {}, column: {}", .{ text[i], lineNumber, (i - lastNextLine) });
             std.os.exit(1);
         }
     }

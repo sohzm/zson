@@ -14,7 +14,7 @@ pub fn printJSON(tokenArr: []lex.Token) !void {
         if (element.token == lex.token.braceO or element.token == lex.token.bracketO) {
             indents += 1;
             before = true;
-            try stdout.print("{s}{s}\n", .{fmt.bold, element.value});
+            try stdout.print("{s}{s}\n", .{ fmt.bold, element.value });
             try printIndent(indents);
             continue;
         }
@@ -22,27 +22,27 @@ pub fn printJSON(tokenArr: []lex.Token) !void {
             indents -= 1;
             try stdout.print("\n", .{});
             try printIndent(indents);
-            try stdout.print("{s}{s}", .{fmt.bold, element.value});
+            try stdout.print("{s}{s}", .{ fmt.bold, element.value });
             continue;
         }
         if (element.token == lex.token.string) {
             if (before) {
-                try stdout.print("{s}{s}", .{fmt.blue, element.value});
+                try stdout.print("{s}{s}{s}", .{ fmt.bold, fmt.blue, element.value });
             } else {
-                try stdout.print("{s}{s}", .{fmt.red, element.value});
+                try stdout.print("{s}{s}", .{ fmt.green, element.value });
             }
             continue;
         }
         if (element.token == lex.token.num) {
-            try stdout.print("{s}{s}", .{fmt.cyan, element.value});
+            try stdout.print("{s}{s}", .{ fmt.cyan, element.value });
             continue;
         }
         if (element.token == lex.token.nullValue) {
-            try stdout.print("{s}{s}", .{fmt.magenta, element.value});
+            try stdout.print("{s}{s}", .{ fmt.magenta, element.value });
             continue;
         }
         if (element.token == lex.token.boolValue) {
-            try stdout.print("{s}{s}", .{fmt.green, element.value});
+            try stdout.print("{s}{s}", .{ fmt.red, element.value });
             continue;
         }
         if (element.token == lex.token.eq) {
@@ -55,12 +55,12 @@ pub fn printJSON(tokenArr: []lex.Token) !void {
             try stdout.print("{s},\n", .{fmt.bold});
             try printIndent(indents);
             continue;
-        } 
+        }
     }
     try stdout.print("\n", .{});
 }
 
-fn printIndent (indents: u32) !void {
+fn printIndent(indents: u32) !void {
     const num = indents * indentLen;
     var i: usize = 0;
     while (i < num) : (i += 1) {
