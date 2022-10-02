@@ -61,6 +61,9 @@ pub fn lexer(text: []u8, alloc: std.mem.Allocator) ![]Token {
             last = i;
             i += 1;
             while (!isString(text[i])) {
+                if (eql(u8, text[i .. i + 1], "\\")) {
+                    i += 1;
+                }
                 i += 1;
             }
             i += 1;
