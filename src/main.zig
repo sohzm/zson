@@ -6,6 +6,7 @@ const arg = @import("args.zig");
 
 const stdout = std.io.getStdOut().writer();
 
+
 pub fn main() anyerror!void {
     const a = std.heap.page_allocator;
 
@@ -30,9 +31,11 @@ pub fn main() anyerror!void {
         var fileName = args[1];
         var fileContent = try fls.returnContent(fileName, alloc.allocator());
         var listOfTokens = try lex.lexer(fileContent, alloc.allocator());
-
         try prt.printJSON(listOfTokens);
     } else {
-        try stdout.print("No files provided\n", .{});
+        var fileContent = try fls.readStdin(alloc.allocator());
+        var listOfTokens = try lex.lexer(fileContent, alloc.allocator());
+        try prt.printJSON(listOfTokens);
     }
+    std.log.info("{}: Program finished successfully.", .{std.time.milliTimestamp()});
 }

@@ -2,16 +2,16 @@ const std = @import("std");
 const eql = std.mem.eql;
 
 pub const argsStruct = struct {
-    uwu:       bool,
-    color:     bool,
-    compact:   bool,
+    uwu: bool,
+    color: bool,
+    compact: bool,
     argsError: bool,
-    options:   options,
+    options: options,
     //parse:     []u8,
 };
 
 pub const options = struct {
-    help:    bool,
+    help: bool,
     version: bool,
 };
 

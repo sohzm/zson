@@ -4,7 +4,7 @@ currently just a json prettifier :)
 
 ### Build
 ```
-zig build run
+zig build
 ```
 
 ### Usage

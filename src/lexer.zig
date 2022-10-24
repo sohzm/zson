@@ -13,7 +13,7 @@ pub const Token = struct {
 };
 
 pub fn lexer(text: []u8, alloc: std.mem.Allocator) ![]Token {
-    log.info("Lexer started", .{});
+    log.info("{}: Lexer started", .{std.time.milliTimestamp()});
 
     var list = ArrayList(Token).init(alloc);
 
@@ -60,17 +60,37 @@ pub fn lexer(text: []u8, alloc: std.mem.Allocator) ![]Token {
         } else if (isString(text[i])) {
             last = i;
             i += 1;
+            if (i >= size) {
+                log.err("Size Error", .{});
+                std.os.exit(1);
+            }
             while (!isString(text[i])) {
                 if (eql(u8, text[i .. i + 1], "\\")) {
                     i += 1;
                 }
                 i += 1;
+                if (i >= size) {
+                    log.err("Size Error", .{});
+                    std.os.exit(1);
+                }
             }
             i += 1;
             try list.append(.{ .token = token.string, .value = text[last..i] });
         } else if (isBoolean(text[i])) {
-            var flag1 = eql(u8, text[i .. i + 4], "true");
-            var flag2 = eql(u8, text[i .. i + 5], "false");
+            var flag1: bool = false;
+            var flag2: bool = false;
+            if (i + 4 <= size) {
+                flag1 = eql(u8, text[i .. i + 4], "true");
+            } else {
+                log.err("Size Error", .{});
+                std.os.exit(1);
+            }
+            if (i + 5 <= size) {
+                flag2 = eql(u8, text[i .. i + 5], "false");
+            } else {
+                log.err("Size Error", .{});
+                std.os.exit(1);
+            }
             if (flag1) {
                 try list.append(.{ .token = token.boolValue, .value = text[i .. i + 4] });
                 i += 4;
@@ -80,10 +100,15 @@ pub fn lexer(text: []u8, alloc: std.mem.Allocator) ![]Token {
             } else {
                 log.err("Illegal syntax: '{c}' at line: {}, column: {}", .{ text[i], lineNumber, (i - lastNextLine) });
                 std.os.exit(1);
-                std.os.exit(1);
             }
         } else if (isEmpty(text[i])) {
-            var flag = eql(u8, text[i .. i + 4], "null");
+            var flag: bool = false;
+            if (i + 4 <= size) {
+                flag = eql(u8, text[i .. i + 4], "null");
+            } else {
+                log.err("Size Error", .{});
+                std.os.exit(1);
+            }
             if (flag) {
                 try list.append(.{ .token = token.nullValue, .value = text[i .. i + 4] });
                 i += 4;
@@ -97,7 +122,7 @@ pub fn lexer(text: []u8, alloc: std.mem.Allocator) ![]Token {
         }
     }
 
-    log.info("Lexer Finished without errors", .{});
+    log.info("{}: Lexer Finished without errors", .{std.time.milliTimestamp()});
     return list.toOwnedSlice();
 }
 
