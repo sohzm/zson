@@ -9,10 +9,10 @@ const ArrayList = std.ArrayList;
 const MaxFileSize: usize = 30000000;
 
 pub fn returnContent(str: []u8, alloc: std.mem.Allocator) ![]u8 {
-    log.info("{}: Reading File, file_name = {s}", .{std.time.milliTimestamp(), str});
+    log.info("{}: Reading File, file_name = {s}", .{ std.time.milliTimestamp(), str });
     const file: fs.File = try fs.cwd().openFile(
         str,
-        .{ .read = true },
+        .{},
     );
     defer file.close();
 
