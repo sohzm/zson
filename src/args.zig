@@ -2,11 +2,14 @@ const std = @import("std");
 const eql = std.mem.eql;
 
 pub const argsStruct = struct {
-    uwu: bool,
-    color: bool,
+    uwu: bool, // change text to uwu
     compact: bool,
     argsError: bool,
+    showIndents: bool,
+    disableColor: bool, //
+    showStructure: bool,
     options: options,
+    explorer: bool,
     //parse:     []u8,
 };
 
@@ -24,7 +27,7 @@ pub fn mainArgs(args: [][]u8, argStr: *argsStruct) !void {
             continue;
         }
         if (isColor(args[i])) {
-            argStr.color = true;
+            argStr.disableColor = true;
             i += 1;
             continue;
         }
@@ -49,7 +52,7 @@ pub fn mainArgs(args: [][]u8, argStr: *argsStruct) !void {
 }
 
 fn isColor(str: []u8) bool {
-    var flag: bool = eql(u8, str, "color") or eql(u8, str, "--color");
+    var flag: bool = eql(u8, str, "-d") or eql(u8, str, "disableColor") or eql(u8, str, "--disable-color");
     return flag;
 }
 
@@ -60,6 +63,16 @@ fn isUwu(str: []u8) bool {
 
 fn isCompact(str: []u8) bool {
     var flag: bool = eql(u8, str, "-c") or eql(u8, str, "compact") or eql(u8, str, "--compact");
+    return flag;
+}
+
+fn isStructure(str: []u8) bool {
+    var flag: bool = eql(u8, str, "-s") or eql(u8, str, "structure") or eql(u8, str, "--structure");
+    return flag;
+}
+
+fn isIndent(str: []u8) bool {
+    var flag: bool = eql(u8, str, "-i") or eql(u8, str, "indent") or eql(u8, str, "--indent");
     return flag;
 }
 

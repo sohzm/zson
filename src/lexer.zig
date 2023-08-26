@@ -1,11 +1,21 @@
 const std = @import("std");
-const files = @import("files.zig");
 
 const log = std.log;
 const eql = std.mem.eql;
 const ArrayList = std.ArrayList;
 
-pub const token = enum { num, eq, string, braceO, braceC, bracketO, bracketC, separator, nullValue, boolValue };
+pub const token = enum {
+    EQUAL,
+    NUMBER,
+    STRING,
+    OBJECT_OPEN,
+    OBJECT_CLOSE,
+    ARRAY_OPEN,
+    ARRAY_CLOSE,
+    SEPARATOR,
+    NULL_VALUE,
+    BOOL_VALUE,
+};
 
 pub const Token = struct {
     token: token,
@@ -33,30 +43,30 @@ pub fn lexer(text: []u8, alloc: std.mem.Allocator) ![]Token {
             i += 1;
         } else if (isCurly(text[i])) {
             if (text[i] == '{') {
-                try list.append(.{ .token = token.braceO, .value = text[i .. i + 1] });
+                try list.append(.{ .token = token.OBJECT_OPEN, .value = text[i .. i + 1] });
             } else {
-                try list.append(.{ .token = token.braceC, .value = text[i .. i + 1] });
+                try list.append(.{ .token = token.OBJECT_CLOSE, .value = text[i .. i + 1] });
             }
             i += 1;
         } else if (isSquare(text[i])) {
             if (text[i] == '[') {
-                try list.append(.{ .token = token.bracketO, .value = text[i .. i + 1] });
+                try list.append(.{ .token = token.ARRAY_OPEN, .value = text[i .. i + 1] });
             } else {
-                try list.append(.{ .token = token.bracketC, .value = text[i .. i + 1] });
+                try list.append(.{ .token = token.ARRAY_CLOSE, .value = text[i .. i + 1] });
             }
             i += 1;
         } else if (isEqual(text[i])) {
-            try list.append(.{ .token = token.eq, .value = text[i .. i + 1] });
+            try list.append(.{ .token = token.EQUAL, .value = text[i .. i + 1] });
             i += 1;
         } else if (isSeparator(text[i])) {
-            try list.append(.{ .token = token.separator, .value = text[i .. i + 1] });
+            try list.append(.{ .token = token.SEPARATOR, .value = text[i .. i + 1] });
             i += 1;
         } else if (isDigit(text[i])) {
             last = i;
             while (isDigit(text[i])) {
                 i += 1;
             }
-            try list.append(.{ .token = token.num, .value = text[last..i] });
+            try list.append(.{ .token = token.NUMBER, .value = text[last..i] });
         } else if (isString(text[i])) {
             last = i;
             i += 1;
@@ -75,7 +85,7 @@ pub fn lexer(text: []u8, alloc: std.mem.Allocator) ![]Token {
                 }
             }
             i += 1;
-            try list.append(.{ .token = token.string, .value = text[last..i] });
+            try list.append(.{ .token = token.STRING, .value = text[last..i] });
         } else if (isBoolean(text[i])) {
             var flag1: bool = false;
             var flag2: bool = false;
@@ -92,10 +102,10 @@ pub fn lexer(text: []u8, alloc: std.mem.Allocator) ![]Token {
                 std.os.exit(1);
             }
             if (flag1) {
-                try list.append(.{ .token = token.boolValue, .value = text[i .. i + 4] });
+                try list.append(.{ .token = token.BOOL_VALUE, .value = text[i .. i + 4] });
                 i += 4;
             } else if (flag2) {
-                try list.append(.{ .token = token.boolValue, .value = text[i .. i + 5] });
+                try list.append(.{ .token = token.BOOL_VALUE, .value = text[i .. i + 5] });
                 i += 5;
             } else {
                 log.err("Illegal syntax: '{c}' at line: {}, column: {}", .{ text[i], lineNumber, (i - lastNextLine) });
@@ -110,7 +120,7 @@ pub fn lexer(text: []u8, alloc: std.mem.Allocator) ![]Token {
                 std.os.exit(1);
             }
             if (flag) {
-                try list.append(.{ .token = token.nullValue, .value = text[i .. i + 4] });
+                try list.append(.{ .token = token.NULL_VALUE, .value = text[i .. i + 4] });
                 i += 4;
             } else {
                 log.err("Illegal syntax: '{c}' at line: {}, column: {}", .{ text[i], lineNumber, (i - lastNextLine) });
